@@ -6,11 +6,23 @@ import android.view.Menu;
 import android.view.MenuItem;
 
 public class BlunoTestActivity extends Activity {
+    private BlunoManager mBlunoManager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_bluno_test);
+
+        mBlunoManager = BlunoManager.getInstance();
+        mBlunoManager.initialize(getApplicationContext());
+
+        mBlunoManager.scanLeDevice(true);
+    }
+
+    @Override
+    protected void onDestroy() {
+        mBlunoManager.release();
+        super.onDestroy();
     }
 
     @Override
