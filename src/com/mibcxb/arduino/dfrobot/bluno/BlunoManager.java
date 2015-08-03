@@ -16,6 +16,8 @@ import android.os.Message;
 import android.text.TextUtils;
 import android.util.Log;
 
+import com.mibcxb.arduino.dfrobot.bluno.program.Tank;
+
 public class BlunoManager {
     private static final String TAG = BlunoManager.class.getSimpleName();
 
@@ -33,6 +35,7 @@ public class BlunoManager {
     private BluetoothAdapter mBluetoothAdapter;
 
     private boolean mScanning = false;
+    private BlunoScanListener mOnChangeListener;
 
     private Map<String, Bluno> mDeviceMap = new HashMap<String, Bluno>();
 
@@ -112,12 +115,23 @@ public class BlunoManager {
 
             Bluno bluno = mDeviceMap.get(address);
             if (bluno == null) {
-                bluno = new Bluno(device);
+                bluno = new Tank(device);
                 bluno.connect(mContext);
                 mDeviceMap.put(address, bluno);
+                if (mOnChangeListener != null) {
+                    mOnChangeListener.onScan(bluno);
+                }
             }
         }
     };
+
+    public BlunoScanListener getOnChangeListener() {
+        return mOnChangeListener;
+    }
+
+    public void setOnChangeListener(BlunoScanListener onChangeListener) {
+        this.mOnChangeListener = onChangeListener;
+    }
 
     static class BlunoManagerHanlder extends Handler {
         private final WeakReference<BlunoManager> reference;
@@ -153,4 +167,7 @@ public class BlunoManager {
         }
     }
 
+    public interface BlunoScanListener {
+        void onScan(Bluno bluno);
+    }
 }

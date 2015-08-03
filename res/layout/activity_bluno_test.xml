@@ -8,9 +8,18 @@
     android:paddingTop="@dimen/activity_vertical_margin"
     tools:context="com.mibcxb.arduino.dfrobot.bluno.BlunoTestActivity" >
 
-    <TextView
-        android:layout_width="wrap_content"
+    <EditText
+        android:id="@+id/et_input"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="@string/hello_world" />
+        android:inputType="text"
+        android:singleLine="true" />
+
+    <Button
+        android:id="@+id/btn_send"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/et_input"
+        android:text="SEND" />
 
 </RelativeLayout>
