@@ -31,6 +31,7 @@ public class Tank implements Bluno {
 
     public Tank(BlunoBase blunoBase) {
         this.mBlunoBase = blunoBase;
+        this.mBlunoBase.setProgram(BlunoProgram.TANK);
     }
 
     public BlunoBase getBlunoBase() {
@@ -99,8 +100,8 @@ public class Tank implements Bluno {
     public void writeSerial(byte[] data) {
         mBlunoBase.writeSerial(data);
     }
-    
-    public void writeSerial(String str){
+
+    public void writeSerial(String str) {
         mBlunoBase.writeSerial(str);
     }
 }

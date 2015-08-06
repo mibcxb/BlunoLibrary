@@ -1,19 +1,17 @@
 package com.mibcxb.arduino.dfrobot.bluno;
 
-import android.bluetooth.BluetoothDevice;
-
 import com.mibcxb.arduino.dfrobot.bluno.program.BlunoProgram;
 import com.mibcxb.arduino.dfrobot.bluno.program.Tank;
 
 public class BlunoFactory {
-    public static Bluno create(BluetoothDevice device, BlunoProgram program) {
+    public static Bluno create(BlunoBase base, BlunoProgram program) {
         Bluno bluno;
         switch (program) {
         case TANK:
-            bluno = new Tank(device);
+            bluno = new Tank(base);
             break;
         default:
-            bluno = new BlunoBase(device);
+            bluno = base;
             break;
         }
         return bluno;

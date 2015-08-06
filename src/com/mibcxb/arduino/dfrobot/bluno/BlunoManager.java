@@ -16,6 +16,7 @@ import android.os.Message;
 import android.text.TextUtils;
 import android.util.Log;
 
+import com.mibcxb.arduino.dfrobot.bluno.program.BlunoProgram;
 import com.mibcxb.arduino.dfrobot.bluno.program.Tank;
 
 public class BlunoManager {
@@ -107,7 +108,7 @@ public class BlunoManager {
         @Override
         public void onLeScan(BluetoothDevice device, int rssi, byte[] scanRecord) {
             String name = device.getName();
-            String address = device.getAddress();
+            final String address = device.getAddress();
             if (TextUtils.isEmpty(name)
                     || !name.contains(Bluno.class.getSimpleName())) {
                 return;
@@ -115,12 +116,28 @@ public class BlunoManager {
 
             Bluno bluno = mDeviceMap.get(address);
             if (bluno == null) {
-                bluno = new Tank(device);
-                bluno.connect(mContext);
-                mDeviceMap.put(address, bluno);
-                if (mOnChangeListener != null) {
-                    mOnChangeListener.onScan(bluno);
-                }
+                final BlunoBase blunoBase = new BlunoBase(device);
+                blunoBase.setListener(new BlunoListener() {
+
+                    @Override
+                    public void onStateChanged() {
+                    }
+
+                    @Override
+                    public void onReadSerial(byte[] data) {
+                        blunoBase.setListener(null);
+                        BlunoProgram program = BlunoProgram.fromName(BlunoBase
+                                .decode(data));
+                        Bluno blunoDevice = BlunoFactory.create(blunoBase,
+                                program);
+
+                        mDeviceMap.put(address, blunoDevice);
+                        if (mOnChangeListener != null) {
+                            mOnChangeListener.onScan(blunoDevice);
+                        }
+                    }
+                });
+                blunoBase.connect(mContext);
             }
         }
     };

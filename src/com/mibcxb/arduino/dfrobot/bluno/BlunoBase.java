@@ -7,6 +7,8 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
+import com.mibcxb.arduino.dfrobot.bluno.program.BlunoProgram;
+
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothGatt;
 import android.bluetooth.BluetoothGattCallback;
@@ -30,6 +32,8 @@ public class BlunoBase implements Bluno {
     private static final String CMD_PASSWORD = "AT+PASSWOR=DFRobot\r\n";
     private static final String CMD_BAUDRATE = "AT+CURRUART=%d\r\n";
 
+    private static final String CMD_PROGRAM = "BLQ+PROGRAM";
+
     private int mBaudrate = 115200; // set the default baud rate to 115200
 
     private final BluetoothDevice mDevice;
@@ -37,6 +41,7 @@ public class BlunoBase implements Bluno {
     private final Map<String, BluetoothGattCharacteristic> mCharacteristicMap;
 
     private BlunoState mState = BlunoState.DISCONNECTED;
+    private BlunoProgram mProgram = BlunoProgram.UNKNOWN;
     private BlunoListener mListener = null;
     private boolean mReady = false;
 
@@ -89,6 +94,14 @@ public class BlunoBase implements Bluno {
         }
     }
 
+    public BlunoProgram getProgram() {
+        return mProgram;
+    }
+
+    public void setProgram(BlunoProgram program) {
+        this.mProgram = program;
+    }
+
     public BlunoListener getListener() {
         return mListener;
     }
@@ -105,18 +118,22 @@ public class BlunoBase implements Bluno {
         return mState == BlunoState.CONNECTED && mReady;
     }
 
-    public void writeSerial(String str) {
+    public synchronized void writeSerial(String str) {
         writeSerial(encode(str));
     }
 
     @Override
-    public void writeSerial(byte[] data) {
+    public synchronized void writeSerial(byte[] data) {
         if (data != null) {
             BluetoothGattCharacteristic characteristic = mCharacteristicMap
                     .get(UUID_SERIAL);
             characteristic.setValue(data);
             mBluetoothGatt.writeCharacteristic(characteristic);
         }
+    }
+
+    public void queryProgram() {
+        writeSerial(CMD_PROGRAM);
     }
 
     private BluetoothGattCallback callback = new BluetoothGattCallback() {
@@ -203,6 +220,7 @@ public class BlunoBase implements Bluno {
                         BluetoothGattCharacteristic serial = mCharacteristicMap
                                 .get(UUID_SERIAL);
                         gatt.setCharacteristicNotification(serial, true);
+                        queryProgram();
                         mReady = true;
                     }
                 }
